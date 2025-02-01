@@ -23,4 +23,24 @@ public class RegisterUserDto {
     /*TODO : Mobile Numbe limit according to US standards need to be done*/
     @NotEmpty(message = "The mobile number is required.")
     private String mobileNumber;
+
+    public RegisterUserDto setFullName(String fullName){
+        this.fullName = fullName;
+        return this;
+    }
+
+    public RegisterUserDto setEmail(String email){
+        this.email = email;
+        return this;
+    }
+
+    public RegisterUserDto setPassword(String password){
+        this.password = password;
+        return this;
+    }
+
+    public RegisterUserDto setMobileNumber(String mobileNumber){
+        this.mobileNumber = mobileNumber;
+        return this;
+    }
 }
