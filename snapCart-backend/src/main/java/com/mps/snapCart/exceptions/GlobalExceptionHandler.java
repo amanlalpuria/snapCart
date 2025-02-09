@@ -17,51 +17,47 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleSecurityException(Exception exception) {
         ProblemDetail errorDetail = null;
 
-        // TODO send this stack trace to an observability tool
+        // TODO: Send this stack trace to an observability tool
         exception.printStackTrace();
 
         if (exception instanceof BadCredentialsException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.getMessage());
             errorDetail.setProperty("description", "The username or password is incorrect");
-
-            return errorDetail;
-        }
-
-        if (exception instanceof AccountStatusException) {
+        } else if (exception instanceof AccountStatusException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
             errorDetail.setProperty("description", "The account is locked");
-        }
-
-        if (exception instanceof AccessDeniedException) {
+        } else if (exception instanceof AccessDeniedException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
             errorDetail.setProperty("description", "You are not authorized to access this resource");
-        }
-
-        if (exception instanceof SignatureException) {
+        } else if (exception instanceof SignatureException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
             errorDetail.setProperty("description", "The JWT signature is invalid");
-        }
-
-        if (exception instanceof ExpiredJwtException) {
+        } else if (exception instanceof ExpiredJwtException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
             errorDetail.setProperty("description", "The JWT token has expired");
+        } else if (exception instanceof DataIntegrityViolationException) {
+            if (exception.getCause() != null) {
+                String causeMessage = exception.getCause().getMessage();
+                if (causeMessage.contains("users_mobile_number_key")) {
+                    errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), "Mobile number already exists.");
+                } else if (causeMessage.contains("users_email_key")) {
+                    errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), "Email already exists.");
+                }
+            }
+        } else if (exception instanceof CategoryNotFoundException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(404), exception.getMessage());
+            errorDetail.setProperty("description", "The requested category was not found.");
+        } else if (exception instanceof RuntimeException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
+            errorDetail.setProperty("description", "An unexpected runtime error occurred.");
         }
 
+        // Default fallback for unknown errors
         if (errorDetail == null) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
             errorDetail.setProperty("description", "Unknown internal server error.");
         }
 
-        // Check if the exception is related to the "users_mobile_number_key"  and "users_email_key" constraint violation
-        if (exception instanceof DataIntegrityViolationException) {
-            if (exception.getCause().getMessage().contains("users_mobile_number_key")) {
-                errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
-                errorDetail.setProperty("description", "Mobile number already exists.");
-            } else if (exception.getCause().getMessage().contains("users_email_key")) {
-                errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
-                errorDetail.setProperty("description", "Email already exists.");
-            }
-        }
         return errorDetail;
     }
 }
