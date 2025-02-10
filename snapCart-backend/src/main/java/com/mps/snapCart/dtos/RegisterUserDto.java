@@ -1,15 +1,16 @@
 package com.mps.snapCart.dtos;
 
+import com.mps.snapCart.entities.RoleEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter // Lombok annotations to generate getters and setters for all fields
+@NoArgsConstructor
+@Data
 public class RegisterUserDto {
+
     @NotEmpty(message = "The email address is required.")
     @Email(message = "The email address is invalid.", flags = { Pattern.Flag.CASE_INSENSITIVE })
     private String email;
@@ -24,23 +25,31 @@ public class RegisterUserDto {
     @NotEmpty(message = "The mobile number is required.")
     private String mobileNumber;
 
-    public RegisterUserDto setFullName(String fullName){
+    private RoleEnum roleEnum;
+
+    // Ensure the setters return the object itself for chaining
+    public RegisterUserDto setFullName(String fullName) {
         this.fullName = fullName;
         return this;
     }
 
-    public RegisterUserDto setEmail(String email){
+    public RegisterUserDto setEmail(String email) {
         this.email = email;
         return this;
     }
 
-    public RegisterUserDto setPassword(String password){
+    public RegisterUserDto setPassword(String password) {
         this.password = password;
         return this;
     }
 
-    public RegisterUserDto setMobileNumber(String mobileNumber){
+    public RegisterUserDto setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
+        return this;
+    }
+
+    public RegisterUserDto setRoleEnum(RoleEnum roleEnum) {
+        this.roleEnum = roleEnum;
         return this;
     }
 }

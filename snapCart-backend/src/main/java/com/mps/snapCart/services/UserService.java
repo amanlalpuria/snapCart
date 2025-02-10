@@ -34,6 +34,16 @@ public class UserService {
         return users;
     }
 
+    public User getUserById(Integer userId) {
+        return userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+    }
+
+    public User getUserByMobileNumber(String mobileNumber) {
+        return userRepository.findByMobileNumber(mobileNumber)
+                .orElseThrow(() -> new RuntimeException("User not found with mobile number: " + mobileNumber));
+    }
+
     public User createAdministrator(RegisterUserDto input) {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
 

@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter // Lombok annotations to generate getters and setters for all fields
+@Setter
 public class LoginUserDto {
     @NotEmpty(message = "The email address is required.")
     @Email(message = "The email address is invalid.", flags = { Pattern.Flag.CASE_INSENSITIVE })

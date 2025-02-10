@@ -1,15 +1,7 @@
 package com.mps.snapCart.entities;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,15 +12,19 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-@Table(name="users")
 @Entity
-@Getter // Lombok annotations to generate getters and setters for all fields
+@Table(name="users")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
-    private Integer user_id;
+    @Column(name = "user_id", nullable = false) // Ensure proper column mapping
+    private Integer userId; // Change field name to match camelCase
 
     @Column(nullable = false)
     private String fullName;
@@ -42,6 +38,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses;
+
     @CreationTimestamp
     @Column(nullable = false, name = "created_at")
     private Date createdAt;
@@ -50,10 +49,14 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+    private Role role;
+
+    // Override UserDetails methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getName().toString());
-
         return List.of(authority);
     }
 
@@ -85,39 +88,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
-    private Role role;
-
-    public Role getRole() {
-        return role;
-    }
-
-    public User setRole(Role role) {
-        this.role = role;
-
-        return this;
-    }
-
-    public User setFullName(String fullName) {
-        this.fullName = fullName;
-        return this;
-    }
-
-    public User setEmail(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public User setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-        return this;
-    }
-
-    public User setPassword(String password) {
-        this.password = password;
-        return this;
     }
 }

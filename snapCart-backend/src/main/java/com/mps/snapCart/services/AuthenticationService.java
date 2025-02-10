@@ -36,8 +36,17 @@ public class AuthenticationService {
     }
 
     public User signup(RegisterUserDto input) {
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
+        // Validate the role input (default to USER if null)
+        RoleEnum roleEnum = (input.getRoleEnum() != null) ? input.getRoleEnum() : RoleEnum.USER;
 
+        // Fetch role from the database
+        /*TODO: We may reduce this DB call for better performance, and use the enum defineed in code. But if we want to modify the roleEnum run time this can help*/
+        Optional<Role> optionalRole = roleRepository.findByName(roleEnum);
+        if (optionalRole.isEmpty()) {
+            throw new IllegalArgumentException("Invalid role: " + roleEnum);
+        }
+
+        // Create user with the selected role
         User user = new User()
                 .setFullName(input.getFullName())
                 .setEmail(input.getEmail())
